@@ -1,5 +1,5 @@
 import { getKitConfig } from "@rnx-kit/config";
-import type { Deployment, DistributionPlugin, JSObject } from "./types";
+import type { Deployment, DistributionPlugin, JSObject } from "./types.js";
 
 type Plugin = [string, JSObject];
 
@@ -19,7 +19,7 @@ function loadPlugin(
     return Promise.resolve(require(modulePath)(pluginConfig));
   }
 
-  return import("./distribution/local");
+  return import("./distribution/local.js");
 }
 
 export function getDistribution(

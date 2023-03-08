@@ -1,12 +1,13 @@
+import { TaskReporter } from "@ms-cloudpack/task-reporter";
 import ora from "ora";
-import { once } from "./async";
-import { deleteBranch, pushCurrentChanges } from "./git";
+import { once } from "./async.js";
+import { deleteBranch, pushCurrentChanges } from "./git.js";
 import type {
   BuildParams,
   DistributionPlugin,
   Remote,
   RepositoryInfo,
-} from "./types";
+} from "./types.js";
 
 export async function startBuild(
   remote: Remote,
