@@ -2407,6 +2407,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ms-cloudpack/task-reporter@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@ms-cloudpack/task-reporter@npm:0.2.2"
+  checksum: fd70e1d78f8c535ffc61dd1f3dbd4d174640d93543db647f1a7ea8584b2b54716e7f28abda6c513c59d3c88b8b0253b8fba7b9ca178ddf6323a1a60599fac7b8
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -3110,6 +3117,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnx-kit/build@workspace:incubator/build"
   dependencies:
+    "@ms-cloudpack/task-reporter": ^0.2.2
     "@octokit/core": ^4.0.0
     "@octokit/plugin-rest-endpoint-methods": ^7.0.0
     "@octokit/request-error": ^3.0.0

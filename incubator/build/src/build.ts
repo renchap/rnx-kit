@@ -15,50 +15,77 @@ export async function startBuild(
   repoInfo: RepositoryInfo,
   inputs: BuildParams
 ): Promise<number> {
-  const spinner = ora();
+  const reporter = new TaskReporter({
+    productName: "@rnx-kit/build",
+    description: `Building`,
+    showStarted: false,
+    showPending: true,
+    showCompleted: true,
+    showSummary: false,
+    showTaskDetails: false,
+  });
+  const createBuildBranchTask = reporter.addTask(
+    "Creating build branch",
+    false
+  );
+  const deleteBuildBranchTask = reporter.addTask("Cleaning up", true);
 
-  spinner.start("Creating build branch");
+  const spinner = ora();
 
   const upstream = "origin";
   const buildBranch = await pushCurrentChanges(upstream);
   if (!buildBranch) {
+    createBuildBranchTask.complete({
+      status: "fail",
+      message: "Failed to create build branch",
+    });
     return 1;
   }
 
-  spinner.succeed(`Created build branch ${buildBranch}`);
+  createBuildBranchTask.complete({
+    status: "complete",
+    message: `Created build branch ${buildBranch}`,
+  });
 
   const context = { ...repoInfo, ref: buildBranch };
   const cleanUp = once(async () => {
-    spinner.start("Cleaning up");
+    deleteBuildBranchTask.start();
     await Promise.allSettled([
       remote.cancelBuild(context),
       deleteBranch(buildBranch, upstream),
     ]);
-    spinner.succeed(`Deleted ${buildBranch}`);
+    deleteBuildBranchTask.complete({
+      status: "complete",
+      message: `Deleted ${buildBranch}`,
+    });
   });
+
   const onSignal = () => {
-    spinner.fail();
+    reporter.complete("Cancelled");
     cleanUp().then(() => process.exit(1));
   };
+
   process.on("SIGINT", onSignal);
   process.on("SIGTERM", onSignal);
 
-  spinner.start("Queueing build");
+  if (!createBuildBranchTask) {
+    try {
+      const artifact = await remote.build(context, inputs, spinner);
+      if (!artifact) {
+        await cleanUp();
+        return 1;
+      }
 
-  try {
-    const artifact = await remote.build(context, inputs, spinner);
-    if (!artifact) {
+      await distribution.deploy({ ...context, ...inputs }, artifact, spinner);
+    } catch (e) {
+      spinner.fail();
       await cleanUp();
-      return 1;
+      throw e;
     }
 
-    await distribution.deploy({ ...context, ...inputs }, artifact, spinner);
-  } catch (e) {
-    spinner.fail();
     await cleanUp();
-    throw e;
+    return 0;
   }
 
-  await cleanUp();
-  return 0;
+  return 1;
 }

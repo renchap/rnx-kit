@@ -34,6 +34,7 @@
     "test": "rnx-kit-scripts test"
   },
   "dependencies": {
+    "@ms-cloudpack/task-reporter": "^0.2.2",
     "@octokit/core": "^4.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^7.0.0",
     "@octokit/request-error": "^3.0.0",
